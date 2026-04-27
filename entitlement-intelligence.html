@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entitlement Intelligence — LA Infill Feasibility</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f10;
+    --bg2: #141618;
+    --bg3: #1c1f21;
+    --bg4: #242729;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0ede8;
+    --text2: #8c8a85;
+    --text3: #5a5855;
+    --accent: #c8f060;
+    --accent2: #a8d040;
+    --amber: #f0b840;
+    --red: #e05040;
+    --blue: #60a8f0;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+    background: rgba(13,15,16,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 600; letter-spacing: -0.2px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav-logo-mark {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-logo-mark svg { width: 16px; height: 16px; }
+  .nav-badge {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 8px;
+    background: rgba(200,240,96,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(200,240,96,0.25);
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .nav-city {
+    font-size: 12px; color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  /* HERO */
+  .hero {
+    max-width: 760px; margin: 0 auto;
+    padding: 4rem 2rem 2.5rem;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 500; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 1.25rem;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: ''; display: block;
+    width: 24px; height: 1px; background: var(--accent);
+    opacity: 0.4;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 600; letter-spacing: -1.5px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  h1 span { color: var(--accent); }
+  .hero-sub {
+    font-size: 16px; color: var(--text2);
+    line-height: 1.65; max-width: 520px; margin: 0 auto 2rem;
+  }
+
+  /* SEARCH */
+  .search-container {
+    max-width: 680px; margin: 0 auto 3rem;
+    padding: 0 2rem;
+  }
+  .search-box {
+    display: flex;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-box:focus-within {
+    border-color: rgba(200,240,96,0.4);
+    box-shadow: 0 0 0 3px rgba(200,240,96,0.08);
+  }
+  .search-icon {
+    display: flex; align-items: center;
+    padding: 0 14px 0 16px; color: var(--text3);
+    flex-shrink: 0;
+  }
+  .search-box input {
+    flex: 1;
+    background: transparent;
+    border: none; outline: none;
+    font-family: var(--font);
+    font-size: 15px; color: var(--text);
+    padding: 15px 0;
+    min-width: 0;
+  }
+  .search-box input::placeholder { color: var(--text3); }
+  .search-btn {
+    margin: 6px;
+    padding: 0 20px;
+    background: var(--accent);
+    color: #0d0f10;
+    border: none; border-radius: 9px;
+    font-family: var(--font);
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+  }
+  .search-btn:hover { background: var(--accent2); }
+  .search-btn:active { transform: scale(0.97); }
+  .search-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .examples-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 10px;
+  }
+  .examples-label { font-size: 12px; color: var(--text3); margin-right: 2px; line-height: 28px; }
+  .example-chip {
+    font-size: 12px;
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 20px; color: var(--text2);
+    cursor: pointer; font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .example-chip:hover { background: var(--bg3); color: var(--text); border-color: var(--border2); }
+
+  /* STATUS */
+  .status-area {
+    max-width: 680px; margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .status-steps {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 16px 0;
+  }
+  .step-item {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px;
+  }
+  .step-item.pending { color: var(--text3); }
+  .step-item.active { color: var(--text); }
+  .step-item.done { color: var(--accent); }
+  .step-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; flex-shrink: 0;
+  }
+  .step-item.active .step-dot {
+    width: 8px; height: 8px;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .error-msg {
+    font-size: 13px; color: var(--red);
+    padding: 10px 14px;
+    background: rgba(224,80,64,0.08);
+    border: 1px solid rgba(224,80,64,0.2);
+    border-radius: var(--radius);
+    margin-top: 12px;
+  }
+
+  /* RESULTS */
+  .results {
+    max-width: 760px; margin: 0 auto;
+    padding: 0 2rem 5rem;
+    display: none;
+  }
+  .results.show { display: block; }
+
+  /* ADDRESS BAR */
+  .address-bar {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .address-left { display: flex; align-items: center; gap: 10px; }
+  .address-pin {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(200,240,96,0.12);
+    border: 1px solid rgba(200,240,96,0.2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .address-text { font-size: 14px; font-weight: 500; color: var(--text); }
+  .address-coords {
+    font-size: 11px; color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  /* VERDICT */
+  .verdict {
+    padding: 18px 20px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1.5rem;
+    border: 1px solid;
+  }
+  .verdict.green { background: rgba(200,240,96,0.06); border-color: rgba(200,240,96,0.2); }
+  .verdict.amber { background: rgba(240,184,64,0.06); border-color: rgba(240,184,64,0.2); }
+  .verdict.red { background: rgba(224,80,64,0.06); border-color: rgba(224,80,64,0.2); }
+  .verdict-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .verdict-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .verdict.green .verdict-dot { background: var(--accent); }
+  .verdict.amber .verdict-dot { background: var(--amber); }
+  .verdict.red .verdict-dot { background: var(--red); }
+  .verdict-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+  .verdict.green .verdict-label { color: var(--accent); }
+  .verdict.amber .verdict-label { color: var(--amber); }
+  .verdict.red .verdict-label { color: var(--red); }
+  .verdict-text { font-size: 14px; color: var(--text2); line-height: 1.65; }
+
+  /* METRICS */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 560px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .metric-label { font-size: 11px; color: var(--text3); margin-bottom: 8px; line-height: 1.3; }
+  .metric-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; letter-spacing: -0.5px; }
+  .metric-value.accent { color: var(--accent); }
+  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 5px; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 1.75rem; }
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--text3);
+  }
+  .section-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* LAYER GRID */
+  .layer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 8px;
+  }
+  @media (max-width: 560px) { .layer-grid { grid-template-columns: repeat(2, 1fr); } }
+  .layer-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    transition: border-color 0.15s;
+  }
+  .layer-card:hover { border-color: var(--border2); }
+  .layer-name { font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+  .layer-val { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.4; margin-bottom: 8px; }
+  .badge {
+    display: inline-block;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .badge-green { background: rgba(200,240,96,0.12); color: var(--accent); border: 1px solid rgba(200,240,96,0.2); }
+  .badge-amber { background: rgba(240,184,64,0.12); color: var(--amber); border: 1px solid rgba(240,184,64,0.2); }
+  .badge-gray { background: var(--bg4); color: var(--text3); border: 1px solid var(--border); }
+  .badge-blue { background: rgba(96,168,240,0.12); color: var(--blue); border: 1px solid rgba(96,168,240,0.2); }
+  .badge-red { background: rgba(224,80,64,0.1); color: var(--red); border: 1px solid rgba(224,80,64,0.2); }
+
+  /* DENSITY TABLE */
+  .table-wrap {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    padding: 10px 16px; text-align: left;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.7px;
+    text-transform: uppercase; color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  tbody tr { transition: background 0.1s; }
+  tbody tr:hover { background: var(--bg4); }
+  tbody tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+  tbody td { padding: 12px 16px; color: var(--text); vertical-align: middle; }
+  tbody td:nth-child(2) { font-size: 18px; font-weight: 600; color: var(--accent); letter-spacing: -0.3px; }
+  tbody td .dimtext { font-size: 11px; color: var(--text3); }
+  tr.highlight-row td { background: rgba(200,240,96,0.04); }
+  tr.highlight-row td:nth-child(2) { color: var(--accent); }
+  .star { color: var(--accent); font-size: 11px; margin-left: 4px; }
+
+  /* ADU GRID */
+  .adu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 8px;
+  }
+  @media (max-width: 480px) { .adu-grid { grid-template-columns: 1fr 1fr; } }
+  .adu-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .adu-type { font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+  .adu-count { font-size: 24px; font-weight: 600; color: var(--text); margin-bottom: 5px; letter-spacing: -0.3px; }
+  .adu-note { font-size: 11px; color: var(--text3); line-height: 1.45; }
+
+  /* FLAGS */
+  .flags { display: flex; flex-direction: column; gap: 8px; }
+  .flag {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 13px;
+  }
+  .flag-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .flag-text { color: var(--text2); line-height: 1.5; }
+  .flag-text strong { color: var(--text); font-weight: 500; }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--text3);
+    line-height: 1.65;
+    margin-top: 0.5rem;
+  }
+  .disclaimer a { color: var(--text3); text-decoration: underline; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 12px; color: var(--text3);
+    border-top: 1px solid var(--border);
+  }
+  footer span { color: var(--accent); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text3);
+  }
+  .empty-icon {
+    width: 48px; height: 48px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+    font-size: 20px;
+  }
+  .empty-title { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; line-height: 1.6; max-width: 340px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="2" width="5" height="5" rx="1" fill="#0d0f10"/>
+        <rect x="9" y="2" width="5" height="5" rx="1" fill="#0d0f10"/>
+        <rect x="2" y="9" width="5" height="5" rx="1" fill="#0d0f10"/>
+        <circle cx="11.5" cy="11.5" r="2.5" fill="#0d0f10"/>
+      </svg>
+    </div>
+    Entitlement Intelligence
+  </a>
+  <div class="nav-right">
+    <span class="nav-city">LA City · Beta</span>
+    <span class="nav-badge">By-right</span>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Infill feasibility</div>
+  <h1>Know what you can build<br><span>before you commit</span></h1>
+  <p class="hero-sub">Drop an LA address and get instant by-right density, TOC tiers, overlay zones, and ADU potential — the full zoning picture in under 10 seconds.</p>
+</div>
+
+<div class="search-container">
+  <div class="search-box">
+    <div class="search-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <input type="text" id="addressInput" placeholder="1645 Cahuenga Blvd, Los Angeles, CA" autocomplete="off" spellcheck="false" />
+    <button class="search-btn" id="analyzeBtn" onclick="analyze()">Analyze</button>
+  </div>
+  <div class="examples-row">
+    <span class="examples-label">Try:</span>
+    <button class="example-chip" onclick="setExample('1645 Cahuenga Blvd, Los Angeles, CA 90028')">Hollywood</button>
+    <button class="example-chip" onclick="setExample('3700 S Figueroa St, Los Angeles, CA 90007')">USC area</button>
+    <button class="example-chip" onclick="setExample('1234 S Vermont Ave, Los Angeles, CA 90006')">Koreatown</button>
+    <button class="example-chip" onclick="setExample('4210 W Sunset Blvd, Los Angeles, CA 90029')">Silver Lake</button>
+    <button class="example-chip" onclick="setExample('2600 S Hoover St, Los Angeles, CA 90007')">West Adams</button>
+  </div>
+</div>
+
+<div class="status-area" id="statusArea" style="display:none;">
+  <div class="status-steps" id="statusSteps"></div>
+  <div class="error-msg" id="errorMsg" style="display:none;"></div>
+</div>
+
+<div class="results" id="results">
+  <div class="address-bar">
+    <div class="address-left">
+      <div class="address-pin">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <circle cx="6.5" cy="5.5" r="2" stroke="#c8f060" stroke-width="1.5"/>
+          <path d="M6.5 1C4.015 1 2 3.015 2 5.5c0 3.5 4.5 6.5 4.5 6.5s4.5-3 4.5-6.5C11 3.015 8.985 1 6.5 1z" stroke="#c8f060" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="address-text" id="resolvedAddress"></div>
+        <div class="address-coords" id="coordsDisplay"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict" id="verdictBox">
+    <div class="verdict-top">
+      <div class="verdict-dot"></div>
+      <div class="verdict-label" id="verdictLabel"></div>
+    </div>
+    <div class="verdict-text" id="verdictText"></div>
+  </div>
+
+  <div class="metrics" id="metricsGrid"></div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Zoning layers</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="layer-grid" id="layerGrid"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">By-right density scenarios</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Units</th>
+            <th>Basis</th>
+            <th>Approval path</th>
+          </tr>
+        </thead>
+        <tbody id="densityBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">ADU potential</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="adu-grid" id="aduGrid"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Due diligence flags</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="flags" id="flagsGrid"></div>
+  </div>
+
+  <div class="disclaimer">
+    Data sourced from LA City GeoHub (ArcGIS), LA County Assessor, and OpenStreetMap/Nominatim geocoder. Zoning overlays may lag recent amendments. Density calculations use estimated lot sizes where parcel data is unavailable. All figures are preliminary — verify with <a href="https://planning.lacity.org" target="_blank">LA City Planning</a> and a licensed land use attorney before committing to a project.
+  </div>
+</div>
+
+<footer>
+  Built for <span>infill developers</span> · LA City parcels only · Data via LA City GeoHub
+</footer>
+
+<script>
+const GEOCODE_URL = 'https://nominatim.openstreetmap.org/search';
+const ZONING_URL = 'https://services3.arcgis.com/i7EPAuTZrEQz6HV0/arcgis/rest/services/Zoning/FeatureServer/0/query';
+const TOC_URL = 'https://services3.arcgis.com/i7EPAuTZrEQz6HV0/arcgis/rest/services/Transit_Oriented_Communities_Tiers/FeatureServer/0/query';
+const SP_URL = 'https://services3.arcgis.com/i7EPAuTZrEQz6HV0/arcgis/rest/services/Specific_Plans/FeatureServer/0/query';
+
+function setExample(addr) {
+  document.getElementById('addressInput').value = addr;
+  analyze();
+}
+
+let currentSteps = [];
+
+function renderSteps() {
+  document.getElementById('statusArea').style.display = 'block';
+  document.getElementById('statusSteps').innerHTML = currentSteps.map(s => `
+    <div class="step-item ${s.state}">
+      <div class="step-dot"></div>
+      <span>${s.label}</span>
+    </div>
+  `).join('');
+}
+
+function setError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+async function geocode(address) {
+  const params = new URLSearchParams({ q: address, format: 'json', limit: 1, countrycodes: 'us', addressdetails: 1 });
+  const r = await fetch(`${GEOCODE_URL}?${params}`, { headers: { 'Accept-Language': 'en' } });
+  const data = await r.json();
+  if (!data.length) throw new Error('Address not found. Try a full LA City address with zip code.');
+  const d = data[0];
+  const dn = d.display_name.toLowerCase();
+  if (!dn.includes('los angeles') && !dn.includes('90')) {
+    throw new Error('Address not found in Los Angeles. This tool covers LA City parcels only.');
+  }
+  return {
+    lat: parseFloat(d.lat),
+    lon: parseFloat(d.lon),
+    display: d.display_name.split(',').slice(0, 3).join(', ').trim()
+  };
+}
+
+async function queryArcGIS(url, lat, lon, fields) {
+  const geom = JSON.stringify({ x: lon, y: lat, spatialReference: { wkid: 4326 } });
+  const params = new URLSearchParams({
+    geometry: geom,
+    geometryType: 'esriGeometryPoint',
+    spatialRel: 'esriSpatialRelIntersects',
+    inSR: '4326',
+    outFields: fields || '*',
+    outSR: '4326',
+    f: 'json',
+    resultRecordCount: 1
+  });
+  try {
+    const r = await fetch(`${url}?${params}`);
+    const data = await r.json();
+    if (data.error || !data.features || !data.features.length) return null;
+    return data.features[0].attributes;
+  } catch { return null; }
+}
+
+function parseZone(zone) {
+  if (!zone) return { type: 'unknown', base: null };
+  const z = zone.toUpperCase().replace(/\s+/g, '');
+  if (/^RE/.test(z)) return { type: 'residential-estate', base: z };
+  if (/^RS/.test(z)) return { type: 'residential-single', base: z };
+  if (/^R1/.test(z)) return { type: 'residential-single', base: z };
+  if (/^R2/.test(z)) return { type: 'residential-two', base: z };
+  if (/^RD/.test(z)) return { type: 'residential-multiple', base: z };
+  if (/^R3/.test(z)) return { type: 'residential-multiple', base: z };
+  if (/^R4/.test(z)) return { type: 'residential-multiple', base: z };
+  if (/^R5/.test(z)) return { type: 'residential-multiple', base: z };
+  if (/^RAS/.test(z)) return { type: 'residential-commercial', base: z };
+  if (/^C[12345R]/.test(z)) return { type: 'commercial', base: z };
+  if (/^CM/.test(z)) return { type: 'commercial-manufacturing', base: z };
+  if (/^M[123]/.test(z)) return { type: 'industrial', base: z };
+  if (/^A[12]/.test(z)) return { type: 'agricultural', base: z };
+  return { type: 'other', base: z };
+}
+
+function getZoneReadable(type) {
+  const m = {
+    'residential-estate': 'Residential estate',
+    'residential-single': 'Single-family residential',
+    'residential-two': 'Two-family residential',
+    'residential-multiple': 'Multiple residential',
+    'residential-commercial': 'Residential/commercial (RAS)',
+    'commercial': 'Commercial',
+    'commercial-manufacturing': 'Commercial-manufacturing',
+    'industrial': 'Industrial',
+    'agricultural': 'Agricultural',
+    'other': 'Mixed/other'
+  };
+  return m[type] || 'Unknown';
+}
+
+function getLotApprox(zone) {
+  const z = (zone || '').toUpperCase();
+  if (/^RE40/.test(z)) return 40000;
+  if (/^RE20/.test(z)) return 20000;
+  if (/^RE15/.test(z)) return 15000;
+  if (/^RE11/.test(z)) return 11000;
+  if (/^RE9/.test(z)) return 9000;
+  if (/^RS/.test(z)) return 7200;
+  if (/^R1/.test(z)) return 6000;
+  if (/^R2/.test(z)) return 5000;
+  if (/^RD6/.test(z)) return 6500;
+  if (/^RD5/.test(z)) return 5500;
+  if (/^RD4/.test(z)) return 4500;
+  if (/^RD3/.test(z)) return 3500;
+  if (/^RD2/.test(z)) return 2500;
+  if (/^RD1/.test(z)) return 2000;
+  if (/^R3/.test(z)) return 4000;
+  if (/^R4/.test(z)) return 3000;
+  if (/^R5/.test(z)) return 2000;
+  if (/^C[12]/.test(z)) return 3000;
+  if (/^C[345R]|^RAS/.test(z)) return 2500;
+  return 6000;
+}
+
+function calcUnits(zone, lotSqft) {
+  const z = (zone || '').toUpperCase().replace(/\s+/g, '');
+  const lot = lotSqft || getLotApprox(zone) * 1.2;
+  let base = 1, minPerUnit = 6000;
+
+  if (/^RE/.test(z)) { minPerUnit = 20000; base = 1; }
+  else if (/^RS/.test(z)) { minPerUnit = 7200; base = 1; }
+  else if (/^R1/.test(z)) { minPerUnit = 6000; base = 1; }
+  else if (/^R2/.test(z)) { minPerUnit = 5000; base = Math.max(1, Math.floor(lot / 5000)); }
+  else if (/^RD6/.test(z)) { minPerUnit = 6000; base = Math.max(1, Math.floor(lot / 6000)); }
+  else if (/^RD5/.test(z)) { minPerUnit = 5000; base = Math.max(1, Math.floor(lot / 5000)); }
+  else if (/^RD4/.test(z)) { minPerUnit = 4000; base = Math.max(1, Math.floor(lot / 4000)); }
+  else if (/^RD3/.test(z)) { minPerUnit = 3000; base = Math.max(1, Math.floor(lot / 3000)); }
+  else if (/^RD2/.test(z)) { minPerUnit = 2000; base = Math.max(1, Math.floor(lot / 2000)); }
+  else if (/^RD1/.test(z)) { minPerUnit = 1500; base = Math.max(1, Math.floor(lot / 1500)); }
+  else if (/^R3/.test(z)) { minPerUnit = 3000; base = Math.max(1, Math.floor(lot / 3000)); }
+  else if (/^R4/.test(z)) { minPerUnit = 2000; base = Math.max(1, Math.floor(lot / 2000)); }
+  else if (/^R5/.test(z)) { minPerUnit = 1500; base = Math.max(1, Math.floor(lot / 1500)); }
+  else if (/^C[12]/.test(z)) { minPerUnit = 2000; base = Math.max(1, Math.floor(lot / 2000)); }
+  else if (/^C[345R]|^RAS/.test(z)) { minPerUnit = 1500; base = Math.max(1, Math.floor(lot / 1500)); }
+
+  return { base, minPerUnit, lot };
+}
+
+function buildScenarios(zone, lotSqft, tocTier) {
+  const { base, minPerUnit, lot } = calcUnits(zone, lotSqft);
+  const scenarios = [];
+
+  scenarios.push({ label: 'Base by-right', units: base, basis: `${minPerUnit.toLocaleString()} sf/unit`, path: 'Building permit', highlight: false });
+
+  if (base >= 2) {
+    scenarios.push({ label: 'Density bonus — 35% tier', units: Math.ceil(base * 1.35), basis: '35% bonus · 11% affordable', path: 'By-right + density bonus', highlight: false });
+    scenarios.push({ label: 'Density bonus — 50% max', units: Math.ceil(base * 1.50), basis: '50% bonus · 24% affordable', path: 'By-right + density bonus', highlight: false });
+  }
+
+  if (tocTier && tocTier >= 1) {
+    const bonuses = [0.50, 0.60, 0.70, 0.80];
+    const pct = bonuses[tocTier - 1];
+    const tocUnits = Math.ceil(base * (1 + pct));
+    scenarios.push({ label: `TOC Tier ${tocTier} incentive`, units: tocUnits, basis: `+${Math.round(pct * 100)}% unit bonus`, path: 'By-right (TOC)', highlight: true });
+    if (base >= 2) {
+      scenarios.push({ label: `TOC Tier ${tocTier} + density bonus`, units: Math.ceil(tocUnits * 1.50), basis: 'TOC + 50% density bonus stacked', path: 'By-right · max stack', highlight: false });
+    }
+  }
+
+  return scenarios;
+}
+
+function buildADU(zone, lotSqft) {
+  const z = (zone || '').toUpperCase();
+  const lot = lotSqft || 6000;
+  const isSF = /^(RE|RS|R1)/.test(z);
+  const isMF = /^(R[2-5]|RD|C|RAS)/.test(z);
+  const adus = [];
+
+  if (isSF) {
+    adus.push({ type: 'Attached / detached ADU', count: 1, note: 'Up to 1,200 sf · ministerial approval' });
+    adus.push({ type: 'Junior ADU (JADU)', count: 1, note: 'Up to 500 sf within existing structure' });
+    if (lot >= 10000) adus.push({ type: 'Second detached ADU', count: 1, note: 'Lot ≥10,000 sf · state law AB 976' });
+  } else if (isMF) {
+    const existing = calcUnits(zone, lot).base;
+    const attached = Math.max(2, Math.floor(existing * 0.25));
+    adus.push({ type: 'Attached ADUs', count: attached, note: '25% of existing units, minimum 2' });
+    adus.push({ type: 'Detached ADUs', count: 2, note: 'Up to 2 new detached structures' });
+    adus.push({ type: 'Conversion ADUs', count: Math.min(existing, 6), note: 'Non-livable to livable space' });
+  }
+  return adus;
+}
+
+function buildFlags(zone, tocTier, specificPlan, overlayZone, heightDistrict) {
+  const z = (zone || '').toUpperCase();
+  const flags = [];
+
+  if (specificPlan) {
+    flags.push({ icon: '⚠', text: `<strong>${specificPlan} specific plan</strong> is in effect. Verify design standards, setbacks, and permitted uses — specific plans can override base zone allowances.` });
+  }
+  if (overlayZone) {
+    flags.push({ icon: '⚠', text: `<strong>Overlay zone detected (${overlayZone}).</strong> Overlays may add design review, affordability requirements, or height restrictions beyond base zone.` });
+  }
+  if (tocTier && tocTier >= 1) {
+    flags.push({ icon: '✓', text: `<strong>TOC Tier ${tocTier} location.</strong> Eligible for by-right unit bonus and reduced parking minimums. Confirm qualifying transit stop within required radius.` });
+  }
+  if (/^(RE|RS|R1)/.test(z)) {
+    flags.push({ icon: '→', text: `<strong>Single-family base zone.</strong> Check SB 9 applicability for lot split (up to 4 units on qualifying lots). ADUs and JADUs permitted by-right statewide.` });
+  }
+  if (/^M[123]/.test(z)) {
+    flags.push({ icon: '✗', text: `<strong>Industrial zoning.</strong> Residential use requires a general plan amendment and zone change — discretionary process. Consider adaptive reuse ordinance eligibility.` });
+  }
+  if (!specificPlan && !overlayZone && !tocTier) {
+    flags.push({ icon: '→', text: `<strong>No major overlays detected.</strong> Base zone standards likely govern. Confirm SB 330 anti-downzone protections and verify no pending zone changes.` });
+  }
+  flags.push({ icon: '→', text: `<strong>Verify lot dimensions independently.</strong> Unit counts here use estimated lot sizes. Pull actual parcel data from LA County Assessor before underwriting.` });
+
+  return flags;
+}
+
+function getVerdict(zone, tocTier, specificPlan, lotSqft) {
+  const scenarios = buildScenarios(zone, lotSqft, tocTier);
+  const maxUnits = Math.max(...scenarios.map(s => s.units));
+  const z = (zone || '').toUpperCase();
+
+  if (/^M[123]/.test(z)) return { cls: 'red', label: 'Industrial — no residential by-right', text: `${zone} zoning does not permit residential by-right. A zone change or adaptive reuse approval would be required — both are discretionary. Consider sites in R or C zones for infill.` };
+  if (/^(RE40|RE20)/.test(z)) return { cls: 'amber', label: 'Large-lot estate — low upside', text: `Large-lot estate zoning significantly limits density. ADUs are permitted by-right but multifamily is not. ${tocTier ? `TOC Tier ${tocTier} is present but may not override lot-per-unit minimums.` : 'No TOC overlay.'}` };
+  if (tocTier >= 3 && maxUnits >= 6) return { cls: 'green', label: 'Strong by-right potential', text: `TOC Tier ${tocTier} location with ${zone} base zoning — up to ${maxUnits} units by-right with stacked incentives. No discretionary hearing required.${specificPlan ? ` Note: ${specificPlan} specific plan in effect — verify standards.` : ''}` };
+  if (maxUnits >= 4) return { cls: 'green', label: 'Viable by-right infill site', text: `${zone} zoning supports up to ${maxUnits} units with density bonus. ${tocTier ? `TOC Tier ${tocTier} present — additional upside available.` : 'No TOC overlay detected on this parcel.'}${specificPlan ? ` ${specificPlan} specific plan applies.` : ''}` };
+  if (maxUnits >= 2) return { cls: 'amber', label: 'Moderate potential', text: `Base zoning allows ${maxUnits} units with bonus. Lot size or zone type limits further density. ${tocTier ? `TOC Tier ${tocTier} applies — verify transit proximity requirements.` : 'No TOC overlay.'} ADUs can supplement total unit count.` };
+  return { cls: 'amber', label: 'Single-family zone — ADU strategy', text: `${zone} limits base to 1 unit. ADUs and JADUs permitted by-right statewide. ${tocTier ? `TOC Tier ${tocTier} present.` : ''} Evaluate SB 9 lot split potential for up to 4 units.` };
+}
+
+async function analyze() {
+  const addr = document.getElementById('addressInput').value.trim();
+  if (!addr) return;
+
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('statusArea').style.display = 'block';
+  document.getElementById('analyzeBtn').disabled = true;
+  setError('');
+
+  currentSteps = [
+    { label: 'Geocoding address', state: 'active' },
+    { label: 'Fetching base zoning from LA City GeoHub', state: 'pending' },
+    { label: 'Checking TOC transit tier boundaries', state: 'pending' },
+    { label: 'Checking specific plan areas', state: 'pending' },
+    { label: 'Computing feasibility', state: 'pending' }
+  ];
+  renderSteps();
+
+  try {
+    const geo = await geocode(addr);
+    currentSteps[0].state = 'done'; currentSteps[1].state = 'active'; renderSteps();
+
+    const [zoningData, tocData, spData] = await Promise.all([
+      queryArcGIS(ZONING_URL, geo.lat, geo.lon, 'ZONE_CLASS,ZONE_SMRY,SPECIFIC_PLAN_AREA,HEIGHT_DISTRICT,OVERLAY_ZONE'),
+      queryArcGIS(TOC_URL, geo.lat, geo.lon, 'TIER,STATION_NAME,LINE_NAME'),
+      queryArcGIS(SP_URL, geo.lat, geo.lon, 'SP_NAME,SP_NO')
+    ]);
+
+    currentSteps[1].state = 'done'; currentSteps[2].state = 'done'; currentSteps[3].state = 'done';
+    currentSteps[4].state = 'active'; renderSteps();
+
+    const zone = zoningData?.ZONE_CLASS || zoningData?.ZONE_SMRY || null;
+    const heightDistrict = zoningData?.HEIGHT_DISTRICT || null;
+    const overlayZone = zoningData?.OVERLAY_ZONE || null;
+    const spFromZoning = zoningData?.SPECIFIC_PLAN_AREA || null;
+    const tocTier = tocData?.TIER ? parseInt(tocData.TIER) : 0;
+    const tocStation = tocData?.STATION_NAME || null;
+    const tocLine = tocData?.LINE_NAME || null;
+    const specificPlan = spData?.SP_NAME || spFromZoning || null;
+
+    const zoneInfo = parseZone(zone);
+    const estLot = getLotApprox(zone) * 1.25;
+    const scenarios = buildScenarios(zone, estLot, tocTier);
+    const aduOptions = buildADU(zone, estLot);
+    const flags = buildFlags(zone, tocTier, specificPlan, overlayZone, heightDistrict);
+    const maxUnits = Math.max(...scenarios.map(s => s.units));
+    const verdict = getVerdict(zone, tocTier, specificPlan, estLot);
+
+    document.getElementById('resolvedAddress').textContent = geo.display;
+    document.getElementById('coordsDisplay').textContent = `${geo.lat.toFixed(5)}, ${geo.lon.toFixed(5)}`;
+
+    const vb = document.getElementById('verdictBox');
+    vb.className = `verdict ${verdict.cls}`;
+    document.getElementById('verdictLabel').textContent = verdict.label;
+    document.getElementById('verdictText').textContent = verdict.text;
+
+    document.getElementById('metricsGrid').innerHTML = [
+      { label: 'Base zone', value: zone || '—', sub: getZoneReadable(zoneInfo.type), accent: false },
+      { label: 'TOC tier', value: tocTier ? `Tier ${tocTier}` : 'None', sub: tocStation ? tocStation.substring(0, 20) : 'No transit overlay', accent: tocTier >= 3 },
+      { label: 'Max by-right units', value: maxUnits, sub: 'with stacked incentives', accent: true },
+      { label: 'ADU types available', value: aduOptions.length, sub: 'by-right state law', accent: false }
+    ].map(m => `
+      <div class="metric">
+        <div class="metric-label">${m.label}</div>
+        <div class="metric-value ${m.accent ? 'accent' : ''}">${m.value}</div>
+        <div class="metric-sub">${m.sub}</div>
+      </div>
+    `).join('');
+
+    const layers = [
+      { name: 'Base zoning', val: zone || 'Not retrieved', badge: zone ? 'badge-blue' : 'badge-gray', btxt: zone ? zoneInfo.type.replace('residential-','').replace('-',' ') : 'check manually' },
+      { name: 'Height district', val: heightDistrict ? `District ${heightDistrict}` : 'Not specified', badge: heightDistrict ? 'badge-blue' : 'badge-gray', btxt: heightDistrict ? 'HD ' + heightDistrict : 'verify' },
+      { name: 'TOC overlay', val: tocTier ? `Tier ${tocTier}${tocLine ? ' · ' + tocLine : ''}` : 'Not in TOC zone', badge: tocTier ? 'badge-green' : 'badge-gray', btxt: tocTier ? `+${[50,60,70,80][tocTier-1]}% units` : 'no bonus' },
+      { name: 'Specific plan', val: specificPlan || 'None detected', badge: specificPlan ? 'badge-amber' : 'badge-gray', btxt: specificPlan ? 'verify standards' : 'none' },
+      { name: 'Overlay zone', val: overlayZone || 'None detected', badge: overlayZone ? 'badge-amber' : 'badge-gray', btxt: overlayZone ? 'check requirements' : 'none' },
+      { name: 'Nearest transit', val: tocStation || 'No major station nearby', badge: tocStation ? 'badge-green' : 'badge-gray', btxt: tocStation ? (tocLine || 'rail/BRT') : 'auto/bus only' }
+    ];
+    document.getElementById('layerGrid').innerHTML = layers.map(l => `
+      <div class="layer-card">
+        <div class="layer-name">${l.name}</div>
+        <div class="layer-val">${l.val}</div>
+        <span class="badge ${l.badge}">${l.btxt}</span>
+      </div>
+    `).join('');
+
+    document.getElementById('densityBody').innerHTML = scenarios.map(s => `
+      <tr class="${s.highlight ? 'highlight-row' : ''}">
+        <td>${s.label}${s.highlight ? '<span class="star">★ best by-right</span>' : ''}</td>
+        <td>${s.units}</td>
+        <td class="dimtext">${s.basis}</td>
+        <td><span class="badge badge-green">${s.path}</span></td>
+      </tr>
+    `).join('');
+
+    document.getElementById('aduGrid').innerHTML = aduOptions.map(a => `
+      <div class="adu-card">
+        <div class="adu-type">${a.type}</div>
+        <div class="adu-count">${a.count}</div>
+        <div class="adu-note">${a.note}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('flagsGrid').innerHTML = flags.map(f => `
+      <div class="flag">
+        <div class="flag-icon">${f.icon}</div>
+        <div class="flag-text">${f.text}</div>
+      </div>
+    `).join('');
+
+    currentSteps[4].state = 'done'; renderSteps();
+    setTimeout(() => { document.getElementById('statusArea').style.display = 'none'; }, 1000);
+    document.getElementById('results').classList.add('show');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch(err) {
+    currentSteps.forEach(s => { if (s.state === 'active') s.state = 'pending'; });
+    renderSteps();
+    setError(err.message || 'Something went wrong. Try a different address.');
+  }
+  document.getElementById('analyzeBtn').disabled = false;
+}
+
+document.getElementById('addressInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') analyze();
+});
+</script>
+</body>
+</html>
